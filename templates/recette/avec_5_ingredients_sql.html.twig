@@ -1,0 +1,34 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ title ?? 'Recettes avec 5 ingrédients (SQL)' }}{% endblock %}
+
+{% block body %}
+    <h1>{{ title ?? 'Recettes avec 5 ingrédients (SQL)' }}</h1>
+
+    <table class="table">
+        <thead>
+        <tr>
+            <th>ID Recette</th>
+            <th>Nom</th>
+            <th>Temps</th>
+            <th>Prix</th>
+            <th>Difficulté</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for row in rows %}
+            <tr>
+                <td>{{ row.id }}</td>
+                <td>{{ row.nom }}</td>
+                <td>{{ row.temps }}</td>
+                <td>{{ row.prix }}</td>
+                <td>{{ row.difficulte }}</td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="5"><em>Aucune recette</em></td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

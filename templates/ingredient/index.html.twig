@@ -1,0 +1,75 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Ingrédients{% endblock %}
+
+{% block body %}
+  <div class="container mt-4">
+   {% for message in app.flashes('success') %}
+<div class="alert alert-success">
+{{ message }}
+</div>
+{% endfor %}
+    <h1 class="text-danger">Ingrédients et prix</h1>
+
+    {# 1) Liste #}
+    <ul class="mb-4">
+      {% for ing in ingredients %}
+        <li>
+          Ingrédient {{ loop.index }} :
+          <strong>{{ ing.nom }}</strong>,
+          <strong>{{ ing.prix }}</strong> EUR
+        </li>
+      {% else %}
+        <li>Aucun ingrédient trouvé.</li>
+      {% endfor %}
+    </ul>
+
+    {# 2) Tableau #}
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>N°</th>
+      <th>Nom</th>
+      <th>Prix (EUR)</th>
+      <th>Date de création</th>
+      <th class="text-end">Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for ing in ingredients %}
+      <tr>
+        <td>{{ loop.index }}</td>
+        <td>{{ ing.nom }}</td>
+        <td>{{ ing.prix }}</td> {# ou: {{ ing.prix|number_format(2, '.', ' ') }} #}
+        <td>{{ ing.createdAt ? ing.createdAt|date('d/m/y') : '—' }}</td>
+
+        <td class="text-end">
+          {# Modifier #}
+          <a class="btn btn-sm btn-secondary"
+             href="{{ path('ingredient.edit', { id: ing.id }) }}">
+            Modifier
+          </a>
+
+          {# Supprimer (formulaire POST + override DELETE + CSRF) #}
+          <form method="post"
+                action="{{ path('ingredient.delete', { id: ing.id }) }}"
+                class="d-inline"
+                onsubmit="return confirm('Supprimer {{ ing.nom }} ?');">
+
+            <input type="hidden" name="_method" value="DELETE">
+            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ ing.id) }}">
+
+            <button class="btn btn-sm btn-danger">Supprimer</button>
+          </form>
+        </td>
+      </tr>
+    {% else %}
+      <tr>
+        <td colspan="5" class="text-center">Aucun ingrédient trouvé.</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+  </div>
+  
+{% endblock %}

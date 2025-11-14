@@ -1,0 +1,6 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+  <h1>{{ title|default('Créer un ingrédient') }}</h1>
+  {{ form(crea_form) }}
+{% endblock %}

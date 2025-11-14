@@ -1,0 +1,27 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+  <h1>Créer un ingrédient</h1>
+
+  {{ form_start(crea_form) }}
+
+  <div class="mb-3 ms-3">
+    {{ form_label(crea_form.nom) }}
+    {{ form_widget(crea_form.nom, {'attr': {'class': 'form-control'}}) }}
+    {{ form_help(crea_form.nom) }}          {# utilise l'aide définie dans le FormType #}
+    {{ form_errors(crea_form.nom) }}
+  </div>
+
+  <div class="ms-3 mb-3">
+    {{ form_label(crea_form.prix) }}
+    {{ form_widget(crea_form.prix, {'attr': {'class': 'form-control'}}) }}
+    {{ form_help(crea_form.prix) }}         {# idem, pas de 2e argument ici #}
+    {{ form_errors(crea_form.prix) }}
+  </div>
+
+  <div class="mt-3 ms-3">
+    {{ form_row(crea_form.save) }}
+  </div>
+
+  {{ form_end(crea_form) }}
+{% endblock %}

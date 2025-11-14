@@ -1,0 +1,44 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ title ?? 'Recettes' }}{% endblock %}
+
+{% block body %}
+    <h1>{{ title ?? 'Liste des recettes' }}</h1>
+
+    <table class="table">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Nom</th>
+            <th>Temps</th>
+            <th>Prix</th>
+            <th>Difficulté</th>
+            <th>Ingrédients</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for recette in recettes %}
+            <tr>
+                <td>{{ recette.id }}</td>
+                <td>{{ recette.nom }}</td>
+                <td>{{ recette.temps }} min</td>
+                <td>{{ recette.prix }} €</td>
+                <td>{{ recette.difficulte }}</td>
+                <td>
+                    {% if recette.ingredients is not empty %}
+                        {% for ingredient in recette.ingredients %}
+                            {{ ingredient.nom }}{% if not loop.last %}, {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <em>Aucun ingrédient</em>
+                    {% endif %}
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="6"><em>Aucune recette trouvée</em></td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
