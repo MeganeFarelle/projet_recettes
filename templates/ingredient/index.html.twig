@@ -1,75 +1,84 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Ingrédients{% endblock %}
-
 {% block body %}
-  <div class="container mt-4">
-   {% for message in app.flashes('success') %}
-<div class="alert alert-success">
-{{ message }}
-</div>
-{% endfor %}
-    <h1 class="text-danger">Ingrédients et prix</h1>
 
-    {# 1) Liste #}
-    <ul class="mb-4">
-      {% for ing in ingredients %}
-        <li>
-          Ingrédient {{ loop.index }} :
-          <strong>{{ ing.nom }}</strong>,
-          <strong>{{ ing.prix }}</strong> EUR
-        </li>
-      {% else %}
-        <li>Aucun ingrédient trouvé.</li>
-      {% endfor %}
-    </ul>
+<h1>Liste des ingrédients</h1>
 
-    {# 2) Tableau #}
-<table class="table table-striped">
-  <thead>
-    <tr>
-      <th>N°</th>
-      <th>Nom</th>
-      <th>Prix (EUR)</th>
-      <th>Date de création</th>
-      <th class="text-end">Actions</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for ing in ingredients %}
-      <tr>
-        <td>{{ loop.index }}</td>
-        <td>{{ ing.nom }}</td>
-        <td>{{ ing.prix }}</td> {# ou: {{ ing.prix|number_format(2, '.', ' ') }} #}
-        <td>{{ ing.createdAt ? ing.createdAt|date('d/m/y') : '—' }}</td>
+{# ------------------------------------------ #}
+{# 1) Info de l'utilisateur connecté          #}
+{# ------------------------------------------ #}
 
-        <td class="text-end">
-          {# Modifier #}
-          <a class="btn btn-sm btn-secondary"
-             href="{{ path('ingredient.edit', { id: ing.id }) }}">
-            Modifier
-          </a>
+{% if app.user %}
+    <p>
+        Connecté en tant que 
+        <strong>{{ app.user.email }}</strong>
+    </p>
 
-          {# Supprimer (formulaire POST + override DELETE + CSRF) #}
-          <form method="post"
-                action="{{ path('ingredient.delete', { id: ing.id }) }}"
-                class="d-inline"
-                onsubmit="return confirm('Supprimer {{ ing.nom }} ?');">
+    <a href="{{ path('app_logout') }}" class="btn btn-secondary">
+        Se déconnecter
+    </a>
 
-            <input type="hidden" name="_method" value="DELETE">
-            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ ing.id) }}">
+{% else %}
+    <a href="{{ path('app_login') }}" class="btn btn-primary">
+        Se connecter
+    </a>
+{% endif %}
 
-            <button class="btn btn-sm btn-danger">Supprimer</button>
-          </form>
-        </td>
-      </tr>
-    {% else %}
-      <tr>
-        <td colspan="5" class="text-center">Aucun ingrédient trouvé.</td>
-      </tr>
+<hr>
+
+{# ------------------------------------------ #}
+{# 2) Bouton créer un ingrédient (ROLE_USER) #}
+{# ------------------------------------------ #}
+
+{% if is_granted('ROLE_USER') %}
+    <a href="{{ path('ingredient.create') }}" class="btn btn-success mb-3">
+        + Créer un ingrédient
+    </a>
+{% endif %}
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Nom</th>
+            <th>Prix</th>
+            <th>Date de création</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+
+    {% for ingredient in ingredients %}
+        <tr>
+            <td>{{ ingredient.nom }}</td>
+            <td>{{ ingredient.prix }} €</td>
+            <td>{{ ingredient.createdAt ? ingredient.createdAt|date('d/m/Y') : '' }}</td>
+
+            <td>
+                {# ------------------------------------------------------------ #}
+                {# 3) Modifier / Supprimer visibles SEULEMENT pour ROLE_ADMIN  #}
+                {# ------------------------------------------------------------ #}
+
+                {% if is_granted('ROLE_ADMIN') %}
+                    <a href="{{ path('ingredient.edit', {id: ingredient.id}) }}" 
+                       class="btn btn-warning btn-sm">
+                        Modifier
+                    </a>
+
+                    <form method="post"
+                          action="{{ path('ingredient.delete', {id: ingredient.id}) }}"
+                          style="display:inline-block;"
+                          onsubmit="return confirm('Supprimer cet ingrédient ?');">
+                        <input type="hidden" name="_method" value="DELETE">
+                        <button class="btn btn-danger btn-sm">Supprimer</button>
+                    </form>
+                {% else %}
+                    <span class="text-muted">-</span>
+                {% endif %}
+            </td>
+        </tr>
     {% endfor %}
-  </tbody>
+
+    </tbody>
 </table>
-  </div>
-  
+
 {% endblock %}

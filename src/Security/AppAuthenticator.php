@@ -2,6 +2,7 @@
 
 namespace App\Security;
 
+use App\Service\SendMailService;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -22,8 +23,14 @@ class AppAuthenticator extends AbstractLoginFormAuthenticator
 
     public const LOGIN_ROUTE = 'app_login';
 
-    public function __construct(private UrlGeneratorInterface $urlGenerator)
-    {
+    private SendMailService $mailService;
+
+    // ⭐ Injection du service SendMailService
+    public function __construct(
+        private UrlGeneratorInterface $urlGenerator,
+        SendMailService $mailService
+    ) {
+        $this->mailService = $mailService;
     }
 
     public function authenticate(Request $request): Passport
@@ -43,15 +50,21 @@ class AppAuthenticator extends AbstractLoginFormAuthenticator
     }
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
-{
-    // si une URL de "retour" a été mémorisée, on y va
-    if ($targetPath = $this->getTargetPath($request->getSession(), $firewallName)) {
-        return new RedirectResponse($targetPath);
-    }
+    {
+        // ⭐ Récupération du user connecté
+        $user = $token->getUser();
 
-    // 🔴 ICI : redirection après connexion réussie
-    return new RedirectResponse($this->urlGenerator->generate('app_ingredient'));
-}
+        // ⭐ ENVOI DE L’EMAIL (MISSION 32 ÉTAPE 21–23)
+        $this->mailService->dire_bonjour($user);
+
+        // si une URL de "retour" a été mémorisée, on y va
+        if ($targetPath = $this->getTargetPath($request->getSession(), $firewallName)) {
+            return new RedirectResponse($targetPath);
+        }
+
+        // Redirection après connexion
+        return new RedirectResponse($this->urlGenerator->generate('app_ingredient'));
+    }
 
     protected function getLoginUrl(Request $request): string
     {

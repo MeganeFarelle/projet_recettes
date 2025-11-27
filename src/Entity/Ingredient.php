@@ -3,12 +3,22 @@
 namespace App\Entity;
 
 use App\Repository\IngredientRepository;
+use ApiPlatform\Metadata\ApiResource;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Metadata\ApiFilter;
+
 
 #[ORM\Entity(repositoryClass: IngredientRepository::class)]
+#[ApiResource(
+    normalizationContext: ['groups' => ['ingredient:read']],
+    denormalizationContext: ['groups' => ['ingredient:write']]
+)]
+#[ApiFilter(SearchFilter::class, properties: ['nom' => 'partial'])]
 class Ingredient
 {
     #[ORM\Id]
@@ -16,18 +26,26 @@ class Ingredient
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 50)]  // 👈 manquait
-    #[Assert\Length(min:2, max: 50, minMessage: 'Au moins {{ limit }}  caractères.', maxMessage: 'Au plus {{ limit }} caractères.')]
+    #[ORM\Column(length: 50)]
+    #[Assert\Length(min: 2, max: 50)]
     #[Assert\NotBlank(message: 'Le nom est obligatoire.')]
+    #[Groups(['ingredient:read', 'ingredient:write'])]
     private ?string $nom = null;
 
-    #[ORM\Column(type: 'float')]  // 👈 manquait (tu peux aussi choisir decimal)
+    #[ORM\Column(type: 'float')]
     #[Assert\NotNull(message: 'Le prix est obligatoire.')]
     #[Assert\Range(min: 0, max: 200, notInRangeMessage: 'Le prix doit être entre {{ min }} et {{ max }}.')]
+    #[Groups(['ingredient:read', 'ingredient:write'])]
     private ?float $prix = null;
 
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
+
+    #[ORM\Column]
+    private ?\DateTimeImmutable $updatedAt = null;
+
+    #[ORM\Column(length: 255, unique: true, nullable: true)]
+    private ?string $slug = null;
 
     #[ORM\ManyToMany(targetEntity: Recette::class, mappedBy: 'ingredients')]
     private Collection $recettes;
@@ -35,6 +53,7 @@ class Ingredient
     public function __construct()
     {
         $this->recettes = new ArrayCollection();
+        $this->updatedAt = new \DateTimeImmutable();
     }
 
     public function getId(): ?int
@@ -50,7 +69,6 @@ class Ingredient
     public function setNom(string $nom): static
     {
         $this->nom = $nom;
-
         return $this;
     }
 
@@ -62,7 +80,6 @@ class Ingredient
     public function setPrix(float $prix): static
     {
         $this->prix = $prix;
-
         return $this;
     }
 
@@ -74,7 +91,28 @@ class Ingredient
     public function setCreatedAt(\DateTimeImmutable $createdAt): static
     {
         $this->createdAt = $createdAt;
+        return $this;
+    }
 
+    public function getUpdatedAt(): ?\DateTimeImmutable
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(\DateTimeImmutable $updatedAt): static
+    {
+        $this->updatedAt = $updatedAt;
+        return $this;
+    }
+
+    public function getSlug(): ?string
+    {
+        return $this->slug;
+    }
+
+    public function setSlug(string $slug): static
+    {
+        $this->slug = $slug;
         return $this;
     }
 

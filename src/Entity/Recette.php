@@ -2,7 +2,7 @@
 
 namespace App\Entity;
 
-
+use ApiPlatform\Metadata\ApiResource;
 use Symfony\Component\Validator\Constraints as Assert;
 use App\Repository\RecetteRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -11,6 +11,8 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: RecetteRepository::class)]
+#[ORM\HasLifecycleCallbacks]
+#[ApiResource]
 class Recette
 {
     #[ORM\Id]
@@ -55,7 +57,7 @@ class Recette
     public function __construct()
     {
         $this->ingredients = new ArrayCollection();
-        $this->createdAt = new \DateTimeImmutable();
+        // $this->createdAt = new \DateTimeImmutable();
         $this->updatedAt = new \DateTimeImmutable();
     }
 
@@ -170,5 +172,13 @@ class Recette
         $this->ingredients->removeElement($ingredient);
 
         return $this;
+    }
+
+    #[ORM\PrePersist]
+    public function onPrePersist(): void
+    {
+        if ($this->createdAt === null) {
+            $this->createdAt = new \DateTimeImmutable();
+        }
     }
 }

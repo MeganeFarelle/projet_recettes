@@ -12,16 +12,26 @@ class SecurityController extends AbstractController
     #[Route(path: '/login', name: 'app_login')]
     public function login(AuthenticationUtils $authenticationUtils): Response
     {
-        // if ($this->getUser()) {
-        //     return $this->redirectToRoute('target_path');
-        // }
+        // If the user is already logged in
+        if ($this->getUser()) {
 
-        // get the login error if there is one
+            // If user is verified → go to ingredients
+            if ($this->getUser()->isVerified()) {
+                return $this->redirectToRoute('app_ingredient');
+            }
+
+            // If user is NOT verified → go to pending page
+            return $this->redirectToRoute('app_verify_pending');
+        }
+
+        // get login error if there is one
         $error = $authenticationUtils->getLastAuthenticationError();
-        // last username entered by the user
         $lastUsername = $authenticationUtils->getLastUsername();
 
-        return $this->render('security/login.html.twig', ['last_username' => $lastUsername, 'error' => $error]);
+        return $this->render('security/login.html.twig', [
+            'last_username' => $lastUsername,
+            'error' => $error
+        ]);
     }
 
     #[Route(path: '/logout', name: 'app_logout')]
