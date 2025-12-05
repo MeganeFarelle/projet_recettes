@@ -87,6 +87,7 @@ class RegistrationController extends AbstractController
 
         $this->emailVerifier->handleEmailConfirmation($user, $request->getUri());
 
+        /** @var \App\Entity\User $user */
         $user->setIsVerified(true);
         $em->flush();
 

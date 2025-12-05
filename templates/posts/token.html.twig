@@ -1,0 +1,13 @@
+<h1>Posts sécurisés depuis l’API Platzi</h1>
+
+{% for post in posts %}
+    <div style="border:1px solid #ccc; padding:10px; margin:10px 0;">
+        <h2>{{ post.title }}</h2>
+        <p>{{ post.description }}</p>
+
+        <strong>Prix :</strong> {{ post.price }} €<br>
+        <strong>Catégorie :</strong> {{ post.category.name }}
+
+        <hr>
+    </div>
+{% endfor %}

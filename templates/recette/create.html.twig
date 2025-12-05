@@ -1,3 +1,4 @@
+{# templates/recette/create.html.twig #}
 {% extends 'base.html.twig' %}
 
 {% block title %}Créer une recette{% endblock %}
@@ -6,9 +7,67 @@
     <h1>Créer une recette</h1>
 
     {{ form_start(form) }}
-        {{ form_widget(form) }}
 
-        <button class="btn btn-primary">Créer</button>
+        {{ form_row(form.nom) }}
+        {{ form_row(form.temps) }}
+        {{ form_row(form.description) }}
+        {{ form_row(form.prix) }}
+        {{ form_row(form.difficulte) }}
+        {{ form_row(form.ingredients) }}
+
+        <h3>Tags</h3>
+
+        <div id="tags_collection"
+             data-prototype="{{ form_widget(form.tags.vars.prototype)|e('html_attr') }}">
+            {% for tagForm in form.tags %}
+                <div class="tag-item mb-2">
+                    {{ form_row(tagForm.name) }}
+                    <button type="button" class="btn btn-sm btn-danger remove-tag">Supprimer</button>
+                </div>
+            {% endfor %}
+        </div>
+
+        <button type="button" id="add_tag" class="btn btn-sm btn-secondary mt-2">
+            + Ajouter un tag
+        </button>
+
+        <div class="mt-3">
+            <button class="btn btn-primary">Enregistrer</button>
+        </div>
+
     {{ form_end(form) }}
+{% endblock %}
 
+{% block javascripts %}
+    {{ parent() }}
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const collectionHolder = document.getElementById('tags_collection');
+            const addButton = document.getElementById('add_tag');
+
+            // nombre de lignes existantes
+            collectionHolder.dataset.index = collectionHolder.querySelectorAll('.tag-item').length;
+
+            addButton.addEventListener('click', function () {
+                const prototype = collectionHolder.dataset.prototype;
+                let index = collectionHolder.dataset.index;
+
+                let newForm = prototype.replace(/__name__/g, index);
+                collectionHolder.dataset.index = ++index;
+
+                const div = document.createElement('div');
+                div.classList.add('tag-item', 'mb-2');
+                div.innerHTML = newForm + '<button type="button" class="btn btn-sm btn-danger remove-tag">Supprimer</button>';
+
+                collectionHolder.appendChild(div);
+            });
+
+            collectionHolder.addEventListener('click', function (e) {
+                if (e.target.classList.contains('remove-tag')) {
+                    e.target.closest('.tag-item').remove();
+                }
+            });
+        });
+    </script>
 {% endblock %}

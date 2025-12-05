@@ -13,9 +13,9 @@ services:
       - "../src/Kernel.php"
 
   App\EventListener\IngredientListener:
-    class: App\EventListener\IngredientListener
     tags:
-      - { name: doctrine.orm.entity_listener, event: preUpdate, entity: App\Entity\Ingredient }
+      - { name: doctrine.orm.entity_listener, event: prePersist, entity: App\Entity\Ingredient }
+      - { name: doctrine.orm.entity_listener, event: preUpdate,  entity: App\Entity\Ingredient }
 
   App\EventListener\IngredientSlugListener:
     class: App\EventListener\IngredientSlugListener

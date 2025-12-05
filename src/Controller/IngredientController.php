@@ -136,7 +136,7 @@ class IngredientController extends AbstractController
         $ingredient->setNom($formData['nom'] ?? '');
         $ingredient->setPrix((float) ($formData['prix'] ?? 0));
         $ingredient->setCreatedAt(new \DateTimeImmutable());
-
+        $ingredient->setUser($this->getUser());
         $em->persist($ingredient);
         $em->flush();
 

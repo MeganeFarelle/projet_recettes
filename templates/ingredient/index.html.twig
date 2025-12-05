@@ -54,12 +54,14 @@
             <td>{{ ingredient.createdAt ? ingredient.createdAt|date('d/m/Y') : '' }}</td>
 
             <td>
-                {# ------------------------------------------------------------ #}
-                {# 3) Modifier / Supprimer visibles SEULEMENT pour ROLE_ADMIN  #}
-                {# ------------------------------------------------------------ #}
 
-                {% if is_granted('ROLE_ADMIN') %}
-                    <a href="{{ path('ingredient.edit', {id: ingredient.id}) }}" 
+                {# ---------------------------------------------------------------- #}
+                {# 3) Admin peut tout modifier | User peut modifier ses ingrédients #}
+                {# ---------------------------------------------------------------- #}
+
+                {% if is_granted('ROLE_ADMIN') or ingredient.user == app.user %}
+
+                    <a href="{{ path('ingredient.edit', {id: ingredient.id}) }}"
                        class="btn btn-warning btn-sm">
                         Modifier
                     </a>
@@ -71,6 +73,7 @@
                         <input type="hidden" name="_method" value="DELETE">
                         <button class="btn btn-danger btn-sm">Supprimer</button>
                     </form>
+
                 {% else %}
                     <span class="text-muted">-</span>
                 {% endif %}

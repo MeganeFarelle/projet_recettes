@@ -24,6 +24,14 @@ class IsVerifiedListener
             return;
         }
 
+        $request = $event->getRequest();
+        $path = $request->getPathInfo();
+
+        // 🔥 NEW: Do NOT block API routes
+        if (str_starts_with($path, '/api')) {
+            return;
+        }
+
         $user = $this->security->getUser();
 
         // Not logged in → leave
@@ -31,33 +39,38 @@ class IsVerifiedListener
             return;
         }
 
-        // Already verified → leave
+        // Admins are allowed
+        if ($this->security->isGranted('ROLE_ADMIN')) {
+            return;
+        }
+
+        // 👉 IMPORTANT : si lʼutilisateur est déjà vérifié → on laisse passer
+        /** @var \App\Entity\User $user */
+
         if ($user->isVerified()) {
             return;
         }
 
+        /** @var \Symfony\Component\HttpFoundation\Session\Session $session */
+        $session = $request->getSession();
+        $session->getFlashBag()->add('warning', 'Veuillez confirmer votre adresse email avant de continuer.');
+
         // Allowed routes even if NOT verified
         $allowedRoutes = [
             'app_register',
-            'app_verify_email',   // email confirmation link
-            'app_verify_pending', // the page we will create
+            'app_verify_email',
+            'app_verify_pending',
             'app_login',
             'app_logout',
         ];
 
-        $currentRoute = $event->getRequest()->attributes->get('_route');
+        $currentRoute = $request->attributes->get('_route');
 
         if (in_array($currentRoute, $allowedRoutes)) {
             return;
         }
 
-        // BLOCK ACCESS
-        $event->getRequest()->getSession()->getFlashBag()->add(
-            'warning',
-            'Veuillez confirmer votre adresse email avant de continuer.'
-        );
-
-        // Redirect to the NEW safe page
+        // Redirect
         $event->setResponse(
             new RedirectResponse($this->router->generate('app_verify_pending'))
         );

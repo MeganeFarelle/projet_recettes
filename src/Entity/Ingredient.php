@@ -44,8 +44,12 @@ class Ingredient
     #[ORM\Column]
     private ?\DateTimeImmutable $updatedAt = null;
 
-    #[ORM\Column(length: 255, unique: true, nullable: true)]
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $slug = null;
+
+    #[ORM\ManyToOne(inversedBy: 'ingredients')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $user = null;
 
     #[ORM\ManyToMany(targetEntity: Recette::class, mappedBy: 'ingredients')]
     private Collection $recettes;
@@ -65,7 +69,16 @@ class Ingredient
     {
         return $this->nom;
     }
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
 
+    public function setUser(User $user): self
+    {
+        $this->user = $user;
+        return $this;
+    }
     public function setNom(string $nom): static
     {
         $this->nom = $nom;

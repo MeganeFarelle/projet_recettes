@@ -1,0 +1,14 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Posts externes{% endblock %}
+
+{% block body %}
+<h1>Liste des posts externes</h1>
+
+{% for post in posts %}
+    <h3>{{ post.title }}</h3>
+    <p>{{ post.body }}</p>
+    <hr>
+{% endfor %}
+
+{% endblock %}

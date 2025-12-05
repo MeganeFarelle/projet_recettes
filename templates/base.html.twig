@@ -1,38 +1,99 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<meta charset="UTF-8">
-		<title>
-			{% block title %}Welcome!
-			{% endblock %}
-		</title>
-		<link
-		rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text></svg>">
-		{# Run `composer require symfony/webpack-encore-bundle` to start using Symfony UX #}
-		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-		{% block stylesheets %}
-			{{ encore_entry_link_tags('app') }}
-		{% endblock %}
+<head>
+    <meta charset="UTF-8">
+    <title>
+        {% block title %}Welcome!{% endblock %}
+    </title>
 
-		{% block javascripts %}
-			{{ encore_entry_script_tags('app') }}
-		{% endblock %}
-	</head>
-	<body>
+    <link rel="icon"
+          href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'><text y='1.2em' font-size='96'>⚫️</text></svg>'">
 
-		<nav class="p-3 bg-light mb-3">
-			{% if app.user %}
-				<span class="me-2">Connecté en tant que
-					<strong>{{ app.user.email }}</strong>
-				</span>
-				<a href="{{ path('app_logout') }}" class="btn btn-sm btn-danger">Logout</a>
-			{% else %}
-				<a href="{{ path('app_login') }}" class="btn btn-sm btn-primary">Login</a>
-				<a href="{{ path('app_register') }}" class="btn btn-sm btn-success ms-2">Register</a>
-			{% endif %}
-		</nav>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+          rel="stylesheet">
 
-		{% block body %}{% endblock %}
-		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
-	</body>
+    {% block stylesheets %}
+        {{ encore_entry_link_tags('app') }}
+    {% endblock %}
+</head>
+
+<body class="bg-light">
+
+    {# ======================================================
+       HEADER PRINCIPAL
+       ====================================================== #}
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+        <div class="container">
+
+            <a class="navbar-brand fw-bold" href="{{ path('recette.index') }}">
+                🍽️ Mes Recettes
+            </a>
+
+            <button class="navbar-toggler" type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#mainNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div id="mainNav" class="collapse navbar-collapse justify-content-end">
+
+                {% if app.user %}
+                    <span class="navbar-text me-3">
+                        Connecté : <strong>{{ app.user.email }}</strong>
+                    </span>
+
+                    <a href="{{ path('app_logout') }}" class="btn btn-danger btn-sm">
+                        Logout
+                    </a>
+
+                {% else %}
+                    <a href="{{ path('app_login') }}" class="btn btn-primary btn-sm me-2">
+                        Login
+                    </a>
+                    <a href="{{ path('app_register') }}" class="btn btn-success btn-sm">
+                        Register
+                    </a>
+                {% endif %}
+
+            </div>
+        </div>
+    </nav>
+
+
+    {# ======================================================
+       NAVIGATION SECONDAIRE: INGREDIENTS ↔ RECETTES
+       ====================================================== #}
+    <nav class="bg-light py-2 border-bottom">
+        <div class="container d-flex justify-content-start gap-3">
+
+            <a href="{{ path('app_ingredient') }}"
+               class="btn btn-outline-primary btn-sm 
+                      {% if app.request.get('_route') starts with 'ingredient' %}active{% endif %}">
+                🥕 Mes ingrédients
+            </a>
+
+            <a href="{{ path('recette.index') }}"
+               class="btn btn-outline-primary btn-sm
+                      {% if app.request.get('_route') starts with 'recette' %}active{% endif %}">
+                🍽️ Mes recettes
+            </a>
+
+        </div>
+    </nav>
+
+
+    {# ======================================================
+       CONTENU CENTRAL
+       ====================================================== #}
+    <main class="container my-4">
+        {% block body %}{% endblock %}
+    </main>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+
+    {% block javascripts %}
+        {{ encore_entry_script_tags('app') }}
+    {% endblock %}
+</body>
 </html>

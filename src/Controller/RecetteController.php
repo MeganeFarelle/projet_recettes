@@ -2,7 +2,6 @@
 
 namespace App\Controller;
 
-
 use App\Entity\Recette;
 use App\Form\RecetteFormType;
 use App\Repository\RecetteRepository;
@@ -14,17 +13,10 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class RecetteController extends AbstractController
 {
-
-
-    /**
-     * DQL : 10 premières recettes avec leurs ingrédients
-     * URL : /recette/ingredient
-     */
-
     #[Route('/recette', name: 'recette.index')]
     public function index(RecetteRepository $recetteRepository): Response
     {
-        $recettes = $recetteRepository->findAll(); // toutes les recettes
+        $recettes = $recetteRepository->findAll();
 
         return $this->render('recette/index.html.twig', [
             'recettes' => $recettes,
@@ -43,10 +35,6 @@ class RecetteController extends AbstractController
         ]);
     }
 
-    /**
-     * DQL : recettes qui ont exactement 5 ingrédients
-     * URL : /recette/avec_5_ingredients
-     */
     #[Route('/recette/avec_5_ingredients', name: 'recette.avec_5_ingredients_dql')]
     public function recetteAvec5IngredientsDql(RecetteRepository $recetteRepository): Response
     {
@@ -58,10 +46,6 @@ class RecetteController extends AbstractController
         ]);
     }
 
-    /**
-     * SQL : 10 premières recettes + ingrédients
-     * URL : /recette/ingredient_sql
-     */
     #[Route('/recette/ingredient_sql', name: 'recette.ingredient_sql')]
     public function recetteIngredientSql(RecetteRepository $recetteRepository): Response
     {
@@ -73,10 +57,6 @@ class RecetteController extends AbstractController
         ]);
     }
 
-    /**
-     * SQL : recettes qui ont 5 ingrédients
-     * URL : /recette/avec_5_ingredients_sql
-     */
     #[Route('/recette/avec_5_ingredients_sql', name: 'recette.avec_5_ingredients_sql')]
     public function recetteAvec5IngredientsSql(RecetteRepository $recetteRepository): Response
     {
@@ -98,13 +78,18 @@ class RecetteController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
 
+            // ⭐⭐⭐ IMPORTANT POUR ÉVITER L'ERREUR user_id NULL ⭐⭐⭐
+            $recette->setUser($this->getUser());
+
             // Vérifier minimum 3 ingrédients
             if (count($recette->getIngredients()) < 3) {
                 $this->addFlash('error', 'Vous devez choisir au moins 3 ingrédients.');
             } else {
                 $em->persist($recette);
                 $em->flush();
+
                 $this->addFlash('success', 'Recette créée avec succès !');
+
                 return $this->redirectToRoute('recette.index');
             }
         }
